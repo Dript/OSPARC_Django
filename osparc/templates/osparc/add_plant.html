@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html>
+<!-- Copyright SunSpec Alliance 2014-2016 All Rights Reserved -->
+<!-- <c:set var="activeTab" value="manage_plants" scope="session"/> -->
+{% load static %}
+
+<link rel="stylesheet" type="text/css" href="{% static 'osparc/themes_blue.css' %}" />
+<link rel="stylesheet" type="text/css" href="{% static 'osparc/osparc.css' %}" />
+
+<head>
+  <meta charset="utf-8">
+  <title>oSPARC</title>
+</head>
+
+<body>
+
+
+<!-- header from head_nav.html (logos, title) -->
+<a href="http://www.sunspec.org/"><img src="{% static "osparc/images/osparc_header.jpeg" %}" alt="SunSpec Alliance oSPARC" title="SunSpec Alliance oSPARC"/></a>
+<div class="floatRight">
+  <a href="http://www.cleanpower.com/"><img src="{% static "osparc/images/by_SA-SystemCheck_web.png" %}" alt="Clean Power Research" title="Clean Power Research"/></a>
+</div>
+
+<!-- Top navigation bar from include/top_nav.jsp -->
+<div id="main_nav">
+  <ul class="dropdown top_level">
+    <li id="homeLink"><a href="/osparc">Dashboard</a></li>
+    <!--
+    <sec:authorize access="hasRole('admin')">
+      <li ><a href="#">Accounts</a>
+          <ul class="sub_menu">
+              <li><a href="/account/create">Create Account</a></li>
+              <li><a href="/account">Manage Accounts</a></li>
+          </ul>
+      </li>
+    </sec:authorize>
+  -->
+    <sec:authorize access="hasRole('admin') or hasRole('dataProvider')">
+      <li ><a href="#">Plants</a>
+          <ul class="sub_menu">
+              <li><a href="add_plant">Create Plant</a></li>
+<!--              <li><a href="/plant/upload">Upload Plant</a></li>
+              <li><a href="/plant/timeseries_upload">Upload Plant Timeseries Data</a></li>
+-->
+              <li><a href="list_plants">View Plants</a></li>
+          </ul>
+      </li>
+    </sec:authorize>
+      <li><a href="#">Reports</a>
+        <ul class="sub_menu">
+          <li><a href="add_query">Create Report Definition</a></li>
+          <li><a href="list_queries">View Report Definitions</a></li>
+          <li><a href="list_reports">View Reports</a></li>
+        </ul>
+      </li>
+      <li><a href="http://sunspec.org/osparchelp" target="_blank">Help</a></li>
+      <!--
+      <li>
+        <c:if test="${pageContext.request.remoteUser != null}">
+          <c:url var="logoutUrl" value="/logout"/>
+
+
+          <form action="${logoutUrl}" method="post" id="logout_form">
+            <a href="javascript:{}" onclick="submit_logout_form();">Logout</a>
+             Because we are using form and not form:form we need to
+             explicitly include the csrf token
+            <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+          </form>
+        </c:if>
+      </li>
+      -->
+    </ul>
+    <div class="clearfix"></div>
+</div>
+
+
+  <h2>Add Plant</h2>
+
+    <div class="result"></div>
+
+    <div class="well tab-content">
+        <div class="tab-pane" id="post-object-form">
+            <form action="javascript:osparc_addplant.addPlant()" class="form-horizontal">
+                <fieldset>
+<!--                 <input type='hidden' name='csrfmiddlewaretoken' value='QsmTa0gGg4TRI3fE02JSPcveknCZ6QvneRwLSlF1iQwTgaTZ2yhYoe2byPTYpL8j' />
+ -->
+                    <div class="form-group ">
+                      <label class="col-sm-2 control-label ">Name</label>
+                      <input name="name" class="form-control" type="text"  >
+                    </div>
+                    <div class="form-group ">
+                      <label class="col-sm-2 control-label ">UUID</label>
+                      <input name="uuid" class="form-control" type="text"  >
+                    </div>
+                    <div class="form-group ">
+                      <label class="col-sm-2 control-label ">Description</label>
+                      <input name="description" class="form-control" type="text"  >
+                    </div>
+                    <div class="form-group ">
+                      <label class="col-sm-2 control-label ">ActivationDate</label>
+                      <input name="activationdate" class="form-control" type="date"  >
+                    </div>
+                    <div class="form-group ">
+                      <label class="col-sm-2 control-label ">State</label>
+                      <input name="state" class="form-control" type="text"  >
+                    </div>
+                    <div class="form-group ">
+                      <label class="col-sm-2 control-label ">PostalCode</label>
+                      <input name="postalcode" class="form-control" type="text"  >
+                    </div>
+                    <input type="hidden" name="county" class="form-control" type="text"  >
+                    <input type="hidden" name="city" class="form-control" type="text"  >
+                    <input type="hidden" name="latitude" class="form-control" type="text"  >
+                    <input type="hidden" name="longitude" class="form-control" type="text"  >
+                    <input type="hidden" name="timezone" class="form-control" type="text"  >
+                    <input type="hidden" name="weathersource" class="form-control" type="text"  >
+                    <div class="form-group ">
+                      <label class="col-sm-2 control-label ">DCRating</label>
+                      <input name="dcrating" class="form-control" type="text"  >
+                    </div>
+                    <div class="form-group ">
+                      <label class="col-sm-2 control-label ">ArrayType</label>
+                      <input name="arraytype" class="form-control" type="text"  >
+                    </div>
+                    <div class="form-group ">
+                      <label class="col-sm-2 control-label ">Tilt</label>
+                      <input name="tilt" class="form-control" type="number"  >
+                    </div>
+                    <div class="form-group ">
+                      <label class="col-sm-2 control-label ">Azimuth</label>
+                      <input name="azimuth" class="form-control" type="number"  >
+                    </div>
+                    <div class="form-group ">
+                      <label class="col-sm-2 control-label ">Original Storage Capacity</label>
+                      <input name="storageoriginalcapacity" class="form-control" type="text"  >
+                    </div>
+                    <div class="form-group ">
+                      <label class="col-sm-2 control-label ">Current Storage Capacity</label>
+                      <input name="storagecurrentcapacity" class="form-control" type="text"  >
+                    </div>
+                    <input type="hidden" name="accountid" class="form-control" type="text" value="admin" >
+                    <input type="hidden" name="solaranywheresite" class="form-control" type="text"  >
+                    <div class="form-actions">
+                      <button class="osparcButton" title="POST to add a plant">Add Plant from form fields</button>
+                    </div>
+              </fieldset>
+            </form>
+        </div>
+    </div>
+  </div>
+
+    <div class="well tab-content">
+        <form action="javascript:osparc_addplant.uploadPlant()" class="form-horizontal">
+          <textarea cols="60" data-override="content" id="id__content" name="_content" rows="25" required class="form-control">
+{
+    &quot;uuid&quot;: &quot;&quot;,
+    &quot;name&quot;: &quot;&quot;,
+    &quot;activationdate&quot;: &quot;2016-11-01&quot;,
+    &quot;dcrating&quot;: null,
+    &quot;postalcode&quot;: &quot;&quot;,
+    &quot;state&quot;: &quot;&quot;,
+    &quot;description&quot;: &quot;&quot;,
+    &quot;county&quot;: &quot;&quot;,
+    &quot;city&quot;: &quot;&quot;,
+    &quot;latitude&quot;: &quot;&quot;,
+    &quot;longitude&quot;: &quot;&quot;,
+    &quot;timezone&quot;: &quot;&quot;,
+    &quot;weathersource&quot;: &quot;&quot;,
+    &quot;derate&quot;: null,
+    &quot;trackertype&quot;: &quot;&quot;,
+    &quot;tilt&quot;: null,
+    &quot;azimuth&quot;: null,
+    &quot;storageoriginalcapacity&quot;: null,
+    &quot;storagecurrentcapacity&quot;: null,
+    &quot;storagestateofcharge&quot;: null,
+    &quot;accountid&quot;: &quot;admin&quot;,
+    &quot;versionid&quot;: null,
+    &quot;solaranywheresite&quot;: &quot;&quot;
+}         </textarea>
+          <div class="form-actions">
+            <button class="osparcButton" title="POST to add a plant">Add Plant from json</button>
+          </div>
+        </form>
+    </div>
+
+<div id="overlay"></div>
+<div id="o_footer">
+    <ul>
+        <li>Copyright &copy; 2014-2016 SunSpec Alliance</li>
+        <li><a href="http://www.sunspec.org/join-osparc-program/">Request Account</a></li>
+        <li><a href="http://sunspec.org/contact/" target="_blank">Contact Us</a></li>
+        <li><a href="http://www.sunspec.org/osparc-service-activation-agreement/" target="_blank">Terms of Use</a></li>
+  <li>Version 2.1</li>
+    </ul>
+    <div class="clearfix"></div>
+</div>
+
+<script   src="https://code.jquery.com/jquery-3.1.1.min.js"   integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="   crossorigin="anonymous"></script>
+<script   src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"   integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU="   crossorigin="anonymous"></script>
+
+<script src="{% static 'osparc/jquery.tablesorter.min.js' %}"></script>
+<script src="{% static 'osparc/main.js' %}"></script>
+<script src="{% static 'osparc/add_plant.js' %}"></script>
+    
+<!--
+      <script>
+        window.drf = {
+          csrfHeaderName: "X-CSRFTOKEN",
+          csrfCookieName: "csrftoken"
+        };
+      </script>
+-->
+
+</body>
+</html>

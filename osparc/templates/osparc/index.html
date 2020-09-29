@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html>
+<!-- Copyright SunSpec Alliance 2014-2016 All Rights Reserved -->
+<!-- <c:set var="activeTab" value="manage_plants" scope="session"/> -->
+{% load static %}
+
+<link rel="stylesheet" type="text/css" href="{% static 'osparc/themes_blue.css' %}" />
+<link rel="stylesheet" type="text/css" href="{% static 'osparc/osparc.css' %}" />
+
+<head>
+  <meta charset="utf-8">
+  <title>oSPARC</title>
+</head>
+
+<body>
+
+
+<!-- header from include/header.jsp (logos, title) -->
+<a href="http://www.sunspec.org/"><img src="{% static "osparc/images/osparc_header.jpeg" %}" alt="SunSpec Alliance oSPARC" title="SunSpec Alliance oSPARC"/></a>
+<div class="floatRight">
+  <a href="http://www.cleanpower.com/"><img src="{% static "osparc/images/by_SA-SystemCheck_web.png" %}" alt="Clean Power Research" title="Clean Power Research"/></a>
+</div>
+
+<!-- Top navigation bar from include/top_nav.jsp -->
+<div id="main_nav">
+  <ul class="dropdown top_level">
+    <li id="homeLink"><a href="/osparc">Dashboard</a></li>
+    <!--
+    <sec:authorize access="hasRole('admin')">
+      <li ><a href="#">Accounts</a>
+          <ul class="sub_menu">
+              <li><a href="/account/create">Create Account</a></li>
+              <li><a href="/account">Manage Accounts</a></li>
+          </ul>
+      </li>
+    </sec:authorize>
+  -->
+    <sec:authorize access="hasRole('admin') or hasRole('dataProvider')">
+      <li ><a href="#">Plants</a>
+          <ul class="sub_menu">
+              <li><a href="add_plant">Create Plant</a></li>
+<!--              <li><a href="/plant/upload">Upload Plant</a></li>
+              <li><a href="/plant/timeseries_upload">Upload Plant Timeseries Data</a></li>
+-->
+              <li><a href="list_plants">View Plants</a></li>
+          </ul>
+      </li>
+    </sec:authorize>
+      <li><a href="#">Reports</a>
+        <ul class="sub_menu">
+          <li><a href="add_query">Create Report Definition</a></li>
+          <li><a href="list_queries">View Report Definitions</a></li>
+          <li><a href="list_reports">View Reports</a></li>
+        </ul>
+      </li>
+      <li><a href="http://sunspec.org/osparchelp" target="_blank">Help</a></li>
+      <!--
+      <li>
+        <c:if test="${pageContext.request.remoteUser != null}">
+          <c:url var="logoutUrl" value="/logout"/>
+
+
+          <form action="${logoutUrl}" method="post" id="logout_form">
+            <a href="javascript:{}" onclick="submit_logout_form();">Logout</a>
+             Because we are using form and not form:form we need to
+             explicitly include the csrf token
+            <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+          </form>
+        </c:if>
+      </li>
+      -->
+    </ul>
+    <div class="clearfix"></div>
+</div>
+
+
+<!-- Summary stats (user name, total counts, total capacities) -->
+<div id="summary_info">
+  <table class="tablesorter">
+    <tr>
+      <td><h3>Welcome</h3>&nbsp;{{ account }}</td>
+      <td><h3>Total Plants in Data Set</h3><p id="total_plant_count"></td>
+      <td><h3>Total DC Generation Capacity</h3><p id="total_dc_rating"></td>
+      <td><h3>Total Storage Capacity</h3><p id="total_storage_capacity"></td>
+    </tr>
+  </table>
+</div>
+
+<!-- Main content -->
+<div id="dashboard_wrapper">
+
+  <div id="row1">
+    <div id="o_state_wrapper" class="o_category_filter" style="float:left;width:49%;">
+      	   <h2 class="o_category_filter_header">Number of Plants By State</h2>
+      	   <div id="state_chart" align="center"></div>
+    </div>
+    <div id="o_newplants_stats" class="o_category_filter" style="float:right;width:49%;">
+          <h2 class="o_category_filter_header">Number of Plants By Age</h2>
+          <div id="newplants_chart" align="center"></div>
+    </div>
+    <div class="clearfix"></div>
+  </div>  <!-- row1 -->
+
+  <div id="row2">
+
+      <!-- lower-left: KPIs -->
+      <div id="o_stats_wrapper" class="o_category_filter" style="float:left; width:49%;">
+          <h2 class="o_category_filter_header">Energy Performance Metrics</h2>
+          <div id="kpi_stats" align="center">
+            <div id="kpi_stats_results">
+              <table class="tablesorter">
+                <thead>
+                <tr><th>KPI</th><th>Mean</th><th>Median</th><th>Min</th><th>Max</th></tr>
+                </thead>
+                <tbody>
+                <tr>
+                  <td><a href="help">DC Power Rating (kW)</a></td>
+                  <td id='dc_mean'></td>
+                  <td id='dc_med'></td>
+                  <td id='dc_min'></td>
+                  <td id='dc_max'></td>
+                </tr>
+                <tr>
+                  <td><a href="help">Monthly Insolation (kWh/m<sup>2</sup>)</a></td>
+                  <td id='ghi_mean'></td>
+                  <td id='ghi_med'></td>
+                  <td id='ghi_min'></td>
+                  <td id='ghi_max'></td>
+                </tr>
+                <tr>
+                  <td><a href="help">Monthly Generated Energy (kWh)</a></td>
+                  <td id='wh_mean'></td>
+                  <td id='wh_med'></td>
+                  <td id='wh_min'></td>
+                  <td id='wh_max'></td>
+                </tr>
+                <tr>
+                  <td><a href="help">Monthly Yield (kWh/kWp)</a></td>
+                  <td id='yield_mean'></td>
+                  <td id='yield_med'></td>
+                  <td id='yield_min'></td>
+                  <td id='yield_max'></td>
+                </tr>
+                <tr>
+                  <td><a href="help">Performance Ratio (ratio)</a></td>
+                  <td id='pr_mean'></td>
+                  <td id='pr_med'></td>
+                  <td id='pr_min'></td>
+                  <td id='pr_max'></td>
+                </tr>
+                <tr>
+                  <td><a href="help">Storage Capacity (kWh)</a></td> 
+                  <td id='stor_mean'></td>
+                  <td id='stor_med'></td>
+                  <td id='stor_min'></td>
+                  <td id='stor_max'></td>
+                </tr>
+                <tr>
+                  <td><a href="help">Storage State of Health (%)</a></td> 
+                  <td id='soh_mean'></td>
+                  <td id='soh_med'></td>
+                  <td id='soh_min'></td>
+                  <td id='soh_max'></td>
+                </tr>
+              </tbody>
+              </table>
+            </div>
+          </div>
+      </div>
+
+      <!-- lower-right: Solar Resource Assessment Resources -->
+      <div id="o_myreports_stats" class="o_category_filter" style="float:right;width:49%;">
+        <h2 class="o_category_filter_header">Solar Risk Assessment Resources</h2>
+        <div id="home_resources_div" align="center">
+          <table id="ss_reportList" class="tablesorter">
+            <th>Guides and Best Practices</th>
+<!--      <tr> <td><a href="http://sunspec.org/pv-asset-lifecycle-performance/">SunSpec Asset Lifecycle Performance Specifications</a></td> </tr> -->
+            <tr>
+              <td><a href="http://sunspec.org/wp-content/uploads/2015/06/SunSpec-PV-System-Performance-Assessment-v2.pdf">PV System Performance Assessment</a></td>
+            </tr>
+            <tr>
+              <td><a href="http://sunspec.org/wp-content/uploads/2015/06/Best-Practices-in-PV-System-OM-20150301.pdf">Best Practices in Solar Operations and Maintenance</a></td>
+            </tr>
+            <tr>
+              <td><a href="http://www.sunspec.org/go/osparc">About oSPARC</a></td>
+            </tr>
+          </table>
+        <div class="clearfix"></div>
+      </div>  
+      <!-- lower-right: Solar Resource Assessment Resources -->
+
+    </div>  <!-- row2 -->
+    <div class="clearfix"></div>
+</div>  <!-- dashboard_wrapper -->
+
+<div id="overlay"></div>
+<div id="o_footer">
+    <ul>
+        <li>Copyright &copy; 2014-2016 SunSpec Alliance</li>
+        <li><a href="http://www.sunspec.org/join-osparc-program/">Request Account</a></li>
+        <li><a href="http://sunspec.org/contact/" target="_blank">Contact Us</a></li>
+        <li><a href="http://www.sunspec.org/osparc-service-activation-agreement/" target="_blank">Terms of Use</a></li>
+  <li>Version 2.1</li>
+    </ul>
+    <div class="clearfix"></div>
+</div>
+
+
+<script   src="https://code.jquery.com/jquery-3.1.1.min.js"   integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="   crossorigin="anonymous"></script>
+<script   src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"   integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU="   crossorigin="anonymous"></script>
+<script src="//maps.google.com/maps/api/js?v=3.exp&amp;sensor=false&amp;libraries=places"></script>
+
+<script src="{% static 'osparc/date_utils.js' %}"></script>
+
+<script src="{% static 'osparc/jquery.tablesorter.min.js' %}"></script>
+<script src="{% static 'osparc/main.js' %}"></script>
+<script src="{% static 'osparc/dashboard.js' %}"></script>
+<script type='text/javascript' src='https://www.google.com/jsapi'></script>
+<script type='text/javascript'>
+     google.load('visualization', '1', {'packages':['corechart','geochart','table']});
+</script>
+
+</body>
+</html>
+

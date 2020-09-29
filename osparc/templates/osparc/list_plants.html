@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<!-- Copyright SunSpec Alliance 2014-2016 All Rights Reserved -->
+<!-- <c:set var="activeTab" value="manage_plants" scope="session"/> -->
+{% load static %}
+
+<link rel="stylesheet" type="text/css" href="{% static 'osparc/themes_blue.css' %}" />
+<link rel="stylesheet" type="text/css" href="{% static 'osparc/osparc.css' %}" />
+
+<head>
+  <meta charset="utf-8">
+  <title>oSPARC</title>
+</head>
+
+
+<body>
+
+
+<!-- header from include/header.jsp (logos, title) -->
+<a href="http://www.sunspec.org/"><img src="{% static "osparc/images/osparc_header.jpeg" %}" alt="SunSpec Alliance oSPARC" title="SunSpec Alliance oSPARC"/></a>
+<div class="floatRight">
+  <a href="http://www.cleanpower.com/"><img src="{% static "osparc/images/by_SA-SystemCheck_web.png" %}" alt="Clean Power Research" title="Clean Power Research"/></a>
+</div>
+
+<!-- Top navigation bar from include/top_nav.jsp -->
+<div id="main_nav">
+  <ul class="dropdown top_level">
+    <li id="homeLink"><a href="/osparc">Dashboard</a></li>
+    <!--
+    <sec:authorize access="hasRole('admin')">
+      <li ><a href="#">Accounts</a>
+          <ul class="sub_menu">
+              <li><a href="/account/create">Create Account</a></li>
+              <li><a href="/account">Manage Accounts</a></li>
+          </ul>
+      </li>
+    </sec:authorize>
+  -->
+    <sec:authorize access="hasRole('admin') or hasRole('dataProvider')">
+      <li ><a href="#">Plants</a>
+          <ul class="sub_menu">
+              <li><a href="add_plant">Create Plant</a></li>
+<!--              <li><a href="/plant/upload">Upload Plant</a></li>
+              <li><a href="/plant/timeseries_upload">Upload Plant Timeseries Data</a></li>
+-->
+              <li><a href="list_plants">View Plants</a></li>
+          </ul>
+      </li>
+    </sec:authorize>
+      <li><a href="#">Reports</a>
+        <ul class="sub_menu">
+          <li><a href="add_query">Create Report Definition</a></li>
+          <li><a href="list_queries">View Report Definitions</a></li>
+          <li><a href="list_reports">View Reports</a></li>
+        </ul>
+      </li>
+      <li><a href="http://sunspec.org/osparchelp" target="_blank">Help</a></li>
+      <!--
+      <li>
+        <c:if test="${pageContext.request.remoteUser != null}">
+          <c:url var="logoutUrl" value="/logout"/>
+
+
+          <form action="${logoutUrl}" method="post" id="logout_form">
+            <a href="javascript:{}" onclick="submit_logout_form();">Logout</a>
+             Because we are using form and not form:form we need to
+             explicitly include the csrf token
+            <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+          </form>
+        </c:if>
+      </li>
+      -->
+    </ul>
+    <div class="clearfix"></div>
+</div>
+
+
+  <h2>Manage Plants</h2>
+
+<!--
+  <sec:authorize access="hasRole('dataProvider')">
+    <c:if test="${dpreportid != null}">
+      <a os-data-reportname='Data Provider Report' os-data-reportrun-id="${dpreportid}" class="viewReportLink" href="javascript:void(0);"><spring:message code="plant.list.viewDataProviderReport"/></a>
+    </c:if>
+  </sec:authorize>
+-->
+
+<div id="pager" class="pager">
+<form>
+  <input type="image" onclick="osparc_listplants.getFirst();return false;" src="{% static "osparc/images/first.png" %}"/>
+  <input type="image" onclick="osparc_listplants.getPrev();return false;" src="{% static "osparc/images/prev.png" %}"/>
+  <input type="image" onclick="osparc_listplants.getNext();return false;" src="{% static "osparc/images/next.png" %}"/>
+  <input type="image" onclick="osparc_listplants.getLast();return false;" src="{% static "osparc/images/last.png" %}"/>
+  <span id="firstIndex"></span>&nbsp;-&nbsp;<span id="lastIndex"></span>&nbsp; of <span id="totalIndex"></span>
+<!--   <select class="pagesize">
+    <option value="20">20</option>
+    <option value="50">50</option>
+    <option selected="selected"  value="100">100</option>
+    <option value="999999">All</option>
+  </select>
+ --></form>
+<div class="clearfix"></div>
+</div>
+
+<div id="plant_list_div">
+  <table id="plantlist" class="tablesorter"></table>
+</div>
+
+<div id="o_footer">
+    <ul>
+        <li>Copyright &copy; 2014-2016 SunSpec Alliance</li>
+        <li><a href="http://www.sunspec.org/join-osparc-program/">Request Account</a></li>
+        <li><a href="http://sunspec.org/contact/" target="_blank">Contact Us</a></li>
+        <li><a href="http://www.sunspec.org/osparc-service-activation-agreement/" target="_blank">Terms of Use</a></li>
+  <li>Version 2.1</li>
+    </ul>
+    <div class="clearfix"></div>
+</div>
+
+<script   src="https://code.jquery.com/jquery-3.1.1.min.js"   integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="   crossorigin="anonymous"></script>
+<script   src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"   integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU="   crossorigin="anonymous"></script>
+
+<script src="{% static 'osparc/jquery.tablesorter.min.js' %}"></script>
+<script src="{% static 'osparc/main.js' %}"></script>
+<script src="{% static 'osparc/list_plants.js' %}"></script>
+</body>
+</html>
